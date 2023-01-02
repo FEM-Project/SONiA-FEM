@@ -6,7 +6,7 @@ using SONiA
 using GLMakie
 using TickTock
 
-GEOM_NAME = "quarterPlate_2el"
+GEOM_NAME = "quarterPlate_36el"
 conn_tris, conn_quads, coord = readInput(GEOM_NAME)
 
 # Define Material and Problem Type:
@@ -14,12 +14,7 @@ MAT_NAME = "Custom"
 PROB_TYPE = "Plane_Stress"
 
 # Create new figures:
-p = Figure()
-ax = Axis(p[1, 1], aspect=DataAspect(),title="Geometry")
-plotMesh(conn_tris, coord, :dash, :gray)
-plotMesh(conn_quads, coord, :dash, :gray)
-GLMakie.activate!()
-display(GLMakie.Screen(), p)
+PL("Geometry", conn_tris, conn_quads, coord)
 
 ## Define BCs
 # Dirichlet:
@@ -27,6 +22,7 @@ display(GLMakie.Screen(), p)
 # Get nodes from Volume Box 1
 xv = [ -0.1 0.1 0.1 -0.1 -0.1]
 yv = [ 0. 0. 210. 210. 0.]
+
 # Define BC_D 1
 BC_type = 10
 BC_Dirichlet_1 = BC_Dirichlet(BC_box(xv,yv,coord),BC_type,0.0,0.0)
@@ -71,47 +67,55 @@ plotMesh(conn_quads, defCoord(coord, ux, uy, FACTOR), :solid, :black)
 utot = uTot(ux, uy)
 
 
-# Define new plot    
-p2 = Figure()
-ax = Axis(p2[1, 1], aspect=DataAspect(),title = "Utot")
-plotField(defCoord(coord, ux, uy, FACTOR), conn_quads, utot)
-plotMesh(conn_tris, defCoord(coord, ux, uy, FACTOR), :solid, :black)
-plotMesh(conn_quads, defCoord(coord, ux, uy, FACTOR), :solid, :black)
-GLMakie.activate!()
-display(GLMakie.Screen(), p2)
+# Define new plot  
+PL("Displacement", utot, conn_tris, conn_quads, coord)  
+# p2 = Figure()
+# ax = Axis(p2[1, 1], aspect=DataAspect(),title = "Utot")
+# plotField(defCoord(coord, ux, uy, FACTOR), conn_quads, utot)
+# plotMesh(conn_tris, defCoord(coord, ux, uy, FACTOR), :solid, :black)
+# plotMesh(conn_quads, defCoord(coord, ux, uy, FACTOR), :solid, :black)
+# GLMakie.activate!()
+# display(GLMakie.Screen(), p2)
 
 
 sx, sy, txy = stressCalcGP(U, conn_quads, coord, MAT_NAME, PROB_TYPE)
 
 avrsx = avarageStress(sx, conn_quads, coord)
-# Define new plot    
-p3 = Figure()
-ax = Axis(p3[1, 1], aspect=DataAspect(),title = "Sigma x")
-plotField(defCoord(coord, ux, uy, FACTOR), conn_quads, avrsx)
-plotMesh(conn_tris, defCoord(coord, ux, uy, FACTOR), :solid, :black)
-plotMesh(conn_quads, defCoord(coord, ux, uy, FACTOR), :solid, :black)
-GLMakie.activate!()
-display(GLMakie.Screen(), p3)
-
 avrsy = avarageStress(sy, conn_quads, coord)
-# Define new plot    
-p4 = Figure()
-ax = Axis(p4[1, 1], aspect=DataAspect(),title = "Sigma y")
-plotField(defCoord(coord, ux, uy, FACTOR), conn_quads, avrsy)
-plotMesh(conn_tris, defCoord(coord, ux, uy, FACTOR), :solid, :black)
-plotMesh(conn_quads, defCoord(coord, ux, uy, FACTOR), :solid, :black)
-GLMakie.activate!()
-display(GLMakie.Screen(), p4)
-
 avrtxy = avarageStress(txy, conn_quads, coord)
+
+PL("Sigma X", avrsx, conn_tris, conn_quads, coord)  
+PL("Sigma Y", avrsy, conn_tris, conn_quads, coord)  
+PL("Tau XY", avrtxy, conn_tris, conn_quads, coord)  
+
 # Define new plot    
-p5 = Figure()
-ax = Axis(p5[1, 1], aspect=DataAspect(),title = "Tau xy")
-plotField(defCoord(coord, ux, uy, FACTOR), conn_quads, avrtxy)
-plotMesh(conn_tris, defCoord(coord, ux, uy, FACTOR), :solid, :black)
-plotMesh(conn_quads, defCoord(coord, ux, uy, FACTOR), :solid, :black)
-GLMakie.activate!()
-display(GLMakie.Screen(), p5)
+# p3 = Figure()
+# ax = Axis(p3[1, 1], aspect=DataAspect(),title = "Sigma x")
+# plotField(defCoord(coord, ux, uy, FACTOR), conn_quads, avrsx)
+# plotMesh(conn_tris, defCoord(coord, ux, uy, FACTOR), :solid, :black)
+# plotMesh(conn_quads, defCoord(coord, ux, uy, FACTOR), :solid, :black)
+# GLMakie.activate!()
+# display(GLMakie.Screen(), p3)
+
+# avrsy = avarageStress(sy, conn_quads, coord)
+# # Define new plot    
+# p4 = Figure()
+# ax = Axis(p4[1, 1], aspect=DataAspect(),title = "Sigma y")
+# plotField(defCoord(coord, ux, uy, FACTOR), conn_quads, avrsy)
+# plotMesh(conn_tris, defCoord(coord, ux, uy, FACTOR), :solid, :black)
+# plotMesh(conn_quads, defCoord(coord, ux, uy, FACTOR), :solid, :black)
+# GLMakie.activate!()
+# display(GLMakie.Screen(), p4)
+
+# avrtxy = avarageStress(txy, conn_quads, coord)
+# # Define new plot    
+# p5 = Figure()
+# ax = Axis(p5[1, 1], aspect=DataAspect(),title = "Tau xy")
+# plotField(defCoord(coord, ux, uy, FACTOR), conn_quads, avrtxy)
+# plotMesh(conn_tris, defCoord(coord, ux, uy, FACTOR), :solid, :black)
+# plotMesh(conn_quads, defCoord(coord, ux, uy, FACTOR), :solid, :black)
+# GLMakie.activate!()
+# display(GLMakie.Screen(), p5)
 
 
 println("..END")

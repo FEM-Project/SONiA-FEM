@@ -3,11 +3,12 @@ module MyPlots
 __precompile__(true)
 
 include("FemElements.jl")
-import .FemElements
+include("PostProcessing.jl")
+import .FemElements, .PostProcessing
 
-export plotMesh, plotBC, plotField
+export plotMesh, plotBC, plotField, PL
 
-using CairoMakie, LinearAlgebra
+using LinearAlgebra, GLMakie
 
     # Plot Mesh:
     function plotMesh(conn, coord, linetype, linecolor)
@@ -65,6 +66,26 @@ using CairoMakie, LinearAlgebra
             avr = abs(max-min)
             tricontourf!(xg, yg, zg, extendlow = :auto, extendhigh = :auto, mode = :normal, levels = min:avr/lev:max)
         end
+    end
+
+    # Try to use multiple dispatch
+    function PL(TITLE, conn_tris, conn_quads, coord)
+        p = Figure()
+        ax = Axis(p[1, 1], aspect=DataAspect(),title=TITLE)
+        plotMesh(conn_tris, coord, :dash, :gray)
+        plotMesh(conn_quads, coord, :dash, :gray)
+        GLMakie.activate!()
+        display(GLMakie.Screen(), p)
+    end
+
+    function PL(TITLE, FIELD, conn_tris, conn_quads, coord)
+        p = Figure()
+        ax = Axis(p[1, 1], aspect=DataAspect(),title = TITLE)
+        plotField(coord, conn_quads, FIELD)
+        plotMesh(conn_tris, coord, :solid, :black)
+        plotMesh(conn_quads, coord, :solid, :black)
+        GLMakie.activate!()
+        display(GLMakie.Screen(), p)
     end
 
 end

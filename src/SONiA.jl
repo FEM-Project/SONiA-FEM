@@ -15,7 +15,7 @@ export readInput
 
 # Plot functions:
 using .MyPlots
-export plotMesh, plotBC, plotField
+export plotMesh, plotBC, plotField, PL
 
 # BCs
 using .BCs

@@ -1,0 +1,25 @@
+name = "SONiA"
+uuid = "48a1bf19-a9be-4c6c-908c-294b092df3db"
+authors = ["Gian Maria Santi"]
+version = "0.1.0"
+
+[deps]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+IterativeSolvers = "42fd0dbc-a981-5370-80f2-aaf504508153"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+PolygonOps = "647866c9-e3ac-4575-94e7-e3d426903924"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TickTock = "9ff05d80-102d-5586-aa04-3a8bd1a90d20"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

@@ -52,7 +52,7 @@ plotBC(NeumannNodes_1[:,2],NeumannNodes_1[:,3],:blue)
 
 FORCE_TYPE = "Distributed"
 NORMAL_FORCE = 1/200
-TANGENTIAL_FORCE = 1/200
+TANGENTIAL_FORCE = 0
 FF_1 = BC_Neumann(coord, conn_quads, NeumannNodes_1, NORMAL_FORCE, TANGENTIAL_FORCE)
 
 FF_all = vcat(FF_1)

@@ -99,6 +99,7 @@ avrsy = avarageStress(sy, conn_quads, coord)
 avrtxy = avarageStress(txy, conn_quads, coord)
 
 # Plot Results 
+PL("Deformed Geometry", conn_tris, conn_quads, defCoord(coord, ux, uy, FACTOR))
 PL("Displacement", utot, conn_tris, conn_quads, coord) 
 PL("Sigma X", avrsx, conn_tris, conn_quads, coord)  
 PL("Sigma Y", avrsy, conn_tris, conn_quads, coord)  

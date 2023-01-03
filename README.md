@@ -10,8 +10,10 @@ SONiA is a SOlver for Numerical Aplications written in Julia Programming Languag
 ## How to create/read an example file?
 
 #### 0. Write a geometry file as follow:
-* first of all the number of nodes
-* you need a connectivity matrix where you define the element number, the number of nodes and the nodes' order
+* first of all the number of elements
+* you need a connectivity matrix where you define the element number (1,2,..,n), the number of nodes (3 or 4), the associated material (1,2,..,n) and the nodes' order.
+    * Right now the solver can handle just 1 material, but the connectivity matrix is generalized to implement multiple materials
+    * Mesh with triangles is not tested, so they will probably not work
 * now you need node numbering and coordinates for nodes
 **EXAMPLE:**
 ```

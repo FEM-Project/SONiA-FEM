@@ -2,7 +2,7 @@ module InputManager
 
 __precompile__(true)
 
-export readInput
+export readInput, readMat
 
 using DelimitedFiles: readdlm, findall
 
@@ -40,5 +40,14 @@ function readInput(NAME)
     println("Total number of nodes: ", nnode)
 
     return conn_tris, conn_quads, coord
+end
+
+function readMat(NAME)
+    f = readdlm("materials//$NAME.txt")
+    E = f[2,1]
+    nu = f[2,2]
+    thick = f[2,3]
+
+    return E, nu, thick
 end
 end

@@ -1,7 +1,7 @@
 module MatLib
 
-__precompile__(true)
-
+include("InputManager.jl")
+import .InputManager
 export material
 
 # Material Type:
@@ -13,13 +13,8 @@ end
 
 # Elastic Material Library:
 function material(MAT_NAME::String)
-    if MAT_NAME == "Steel"
-        mat = elastMat(210000,0.3,1)
-    elseif MAT_NAME == "Alluminum"
-        mat = elastMat(70000,0.33,1)
-    elseif MAT_NAME == "Custom"
-        mat = elastMat(1,0.3,1)
-    end
+    E,nu,thick = InputManager.readMat(MAT_NAME)
+    mat = elastMat(E,nu,thick)
     return mat
 end
 

@@ -138,7 +138,7 @@ IMPORTANT: only linear-elastic material work!
 * Assemble all BC Neumann
   
   ```julia
-  FF_all = vcat(FF_1)
+  FF_all = FF_1 + FF_2 + ...
   ```
 
 #### 6. SOLVE

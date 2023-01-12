@@ -3,6 +3,7 @@ Pkg.activate(".")
 
 using SONiA
 using GLMakie
+using Revise
 
 
 ######################################################################
@@ -70,8 +71,8 @@ plotBC(NeumannNodes_1[:,2],NeumannNodes_1[:,3],:blue)
 # Calculate Force vector
 FF_1 = BC_Neumann(coord, conn_quads, NeumannNodes_1, NORMAL_FORCE, TANGENTIAL_FORCE)
 
-# Assemble all BC Neumann
-FF_all = vcat(FF_1)
+# Assemble all BC Neumann (can be: FF_all = FF_1 + FF_2 + ...)
+FF_all = FF_1
 
 
 ######################################################################
@@ -97,6 +98,7 @@ sx, sy, txy = stressCalcGP(U, conn_quads, coord, MAT_NAME, PROB_TYPE)
 avrsx = avarageStress(sx, conn_quads, coord)
 avrsy = avarageStress(sy, conn_quads, coord)
 avrtxy = avarageStress(txy, conn_quads, coord)
+vm = vmStress(avrsx,avrsy,avrtxy)
 
 # Plot Results 
 PL("Deformed Geometry", conn_tris, conn_quads, defCoord(coord, ux, uy, FACTOR))
@@ -104,5 +106,6 @@ PL("Displacement", utot, conn_tris, conn_quads, coord)
 PL("Sigma X", avrsx, conn_tris, conn_quads, coord)  
 PL("Sigma Y", avrsy, conn_tris, conn_quads, coord)  
 PL("Tau XY", avrtxy, conn_tris, conn_quads, coord)  
+PL("Von Mises", vm, conn_tris, conn_quads, coord)  
 
 println("..END")

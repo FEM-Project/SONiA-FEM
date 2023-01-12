@@ -184,6 +184,7 @@ IMPORTANT: only linear-elastic material work!
     avrsx = avarageStress(sx, conn_quads, coord)
     avrsy = avarageStress(sy, conn_quads, coord)
     avrtxy = avarageStress(txy, conn_quads, coord)
+    vm = vmStress(avrsx,avrsy,avrtxy)
     ```
 
 * Plot the results you want using PL

@@ -67,7 +67,7 @@ function BC_Neumann(coord, conn, NeumannNodes, applied_p, applied_t)
     neumann_edges = Array{Float64}(undef, 0, 2)
     for i in 1:nel
         n_edges = Array{Float64}(undef, 0)
-        element_node = conn[i, 3:end]
+        element_node = conn[i, 4:end]
         count = 0
         for j in 1:lastindex(element_node)
             if element_node[j] in NeumannNodes[:, 1]

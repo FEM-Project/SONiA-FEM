@@ -29,6 +29,7 @@ function stiff_TL1(pts, D, thick)
     pg = [1/3]
     w = [0.5]
 
+    # BE CAREFUL TO EXTEND THIS FUNCTION TO p>1 BECAUSE THE INTEGRATION DOMAIN ISN'T A SQUARE!!
     # Compute 2D integral of function f
     for i in 1:lastindex(pg)
         xi = pg[i]

@@ -27,6 +27,6 @@ export elastSolver
 
 # Post PROCESSING
 using . PostProcessing
-export splitU, defCoord, uTot, stressCalcGP, avarageStress, vmStress
+export splitU, defCoord, uTot, stressCalcGP_tris, stressCalcGP_quads, avarageStress, vmStress, nodalStresses
 
 end

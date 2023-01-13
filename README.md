@@ -32,6 +32,7 @@ SONiA is a SOlver for Numerical Aplications written in Julia Programming Languag
   5 0.0 50.0   
   6 0.0 200.0  
   ```
+* **you can help yourselfe using LS-PREPOST**
 
 #### 1. Create a new julia file and activate SONiA package
 
@@ -173,17 +174,38 @@ IMPORTANT: only linear-elastic material work!
     ```julia
     utot = uTot(ux, uy)
     ```
-  * calculate stressess at GPs positions
+  * calculate stressess at GPs positions for triangles and quadrangles
     
     ```julia
-    sx, sy, txy = stressCalcGP(U, conn_quads, coord, MAT_NAME, PROB_TYPE)
+    sx_t, sy_t, txy_t = stressCalcGP_tris(U, conn_tris, coord, MAT_NAME, PROB_TYPE)
+    sx_q, sy_q, txy_q = stressCalcGP_quads(U, conn_quads, coord, MAT_NAME, PROB_TYPE)
     ```
+
+  * calculate stressess at nodes positions for triangles and quadrangles
+    
+    ```julia
+    sx_n_t = nodalStresses(sx_t, conn_tris, coord)
+    sy_n_t = nodalStresses(sy_t, conn_tris, coord)
+    txy_n_t = nodalStresses(txy_t, conn_tris, coord)
+    ```
+
+    ```julia
+    sx_n_q = nodalStresses(sx_q, conn_quads, coord)
+    sy_n_q = nodalStresses(sy_q, conn_quads, coord)
+    txy_n_q = nodalStresses(txy_q, conn_quads, coord)
+    ```
+
   * calculate avarage stressess
     
     ```julia
-    avrsx = avarageStress(sx, conn_quads, coord)
-    avrsy = avarageStress(sy, conn_quads, coord)
-    avrtxy = avarageStress(txy, conn_quads, coord)
+    avrsx = avarageStress(sx_n_t, sx_n_q, conn_tris, conn_quads, coord)
+    avrsy = avarageStress(sy_n_t, sy_n_q, conn_tris, conn_quads, coord)
+    avrtxy = avarageStress(txy_n_t, txy_n_q, conn_tris, conn_quads, coord)
+    ```
+
+  * calculate Von Mises stressess
+    
+    ```julia
     vm = vmStress(avrsx,avrsy,avrtxy)
     ```
 

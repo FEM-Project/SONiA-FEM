@@ -60,7 +60,7 @@ function stressCalcGP(U, conn, coord, MAT_NAME, PROBLEM_TYPE)
     if PROBLEM_TYPE == "Plane_Stress"
         D = Plane_Stress(mat.E, mat.nu, mat.thick)
     elseif PROBLEM_TYPE == "Plane_Strain"
-
+        D = Plane_Strain(mat.E, mat.nu)
     elseif PROBLEM_TYPE == "Axisymmetric"
 
     end

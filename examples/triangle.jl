@@ -7,10 +7,10 @@ using Revise
 using Cairo
 using Infiltrator
 
-# Hint: use "triangle_true" to use a mixture of quardangle and triangles
-#       use "triangle"      to use degenerate quadrangle as triangles
-GEOM_NAME = "triangle_true"
-conn_tris, conn_quads, coord = readInput(GEOM_NAME)
+# Read .k file of LS-PrePost
+GEOM_NAME = "triangle.k"
+nel, nnode, conn, coord = read_LS_PrePost(GEOM_NAME)
+conn_tris, conn_quads = separate_conn(conn)
 
 
 # Define Material and Problem Type:

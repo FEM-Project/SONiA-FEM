@@ -11,7 +11,7 @@ include("PostProcessing.jl")
 
 # Read and manage Input File:
 using .InputManager
-export readInput
+export readInput, read_LS_PrePost, separate_conn
 
 # Plot functions:
 using .MyPlots

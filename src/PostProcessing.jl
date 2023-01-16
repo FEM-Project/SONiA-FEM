@@ -47,7 +47,8 @@ end
 function uTot(ux, uy)
     utot = Array{Float64}(undef,0)
     for i in 1:lastindex(ux)
-    append!(utot, norm(ux[i],uy[i]))
+        uu = sqrt(ux[i]^2+uy[i]^2)
+        append!(utot, uu)
     end
     return utot
 end

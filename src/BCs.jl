@@ -2,7 +2,7 @@ module BCs
 
 __precompile__(true)
 
-export BC_box, BC_Dirichlet, BC_Neumann
+export BC_box, BC_Dirichlet, BC_Neumann, arch, line
 
 include("legzo.jl")
 include("FemElements.jl")
@@ -10,6 +10,7 @@ import .FemElements
 
 using StaticArrays, PolygonOps, LinearAlgebra
 
+# Utilities
 function BC_box(xv, yv, coord)
 
     nnode = size(coord, 1)
@@ -38,6 +39,23 @@ function BC_box(xv, yv, coord)
     end
 
     return BC_nodeBox
+end
+
+function arch(centre,r,alfa1,alfa2)
+    # Angle growing clockwise
+    x0 = centre[1]
+    y0 = centre[2]
+    step = 100
+    t = LinRange(alfa1*pi/180,alfa2*pi/180,step)
+    x = x0 .+ r*cos.(t)
+    y = y0 .+ r*sin.(t)
+    return x, y
+end
+
+function line(p1,p2)
+    x = [p1[1] p2[1]]
+    y = [p1[2] p2[2]]
+    return x, y
 end
 
 # Dirichlet

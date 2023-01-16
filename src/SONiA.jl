@@ -19,7 +19,7 @@ export plotMesh, plotBC, plotField, PL
 
 # BCs
 using .BCs
-export BC_box, BC_Dirichlet, BC_Neumann
+export BC_box, BC_Dirichlet, BC_Neumann, arch, line
 
 # Problem Type:
 using .Solvers

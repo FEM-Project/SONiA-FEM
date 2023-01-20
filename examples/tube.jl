@@ -7,7 +7,7 @@ using Revise
 using TickTock
 
 # Read .k file of LS-PrePost
-GEOM_NAME = "tube600.k"
+GEOM_NAME = "tube35.k"
 nel, nnode, conn, coord = read_LS_PrePost(GEOM_NAME)
 conn_tris, conn_quads = separate_conn(conn)
 
@@ -16,7 +16,10 @@ MAT_NAME = "Custom"
 PROB_TYPE = "Plane_Stress"
 
 # Show Geometry:
-PL("Geometry", conn_tris, conn_quads, coord)
+PL("Geometry", conn_tris, conn_quads, coord, coord, false)
+
+# Geometry Check
+geoCheckQuads(coord, conn_quads)
 
 
 # BC Dirichlet
@@ -70,7 +73,7 @@ FF_all = FF_1_tris + FF_1_quads
 
 ## SOLVE SYSTEM
 tick()
-U = elastSolver(conn_tris, conn_quads, coord, MAT_NAME, PROB_TYPE, all_BC_Dirichlet, FF_all)
+U, Ktot, Kstar, FF = elastSolver(conn_tris, conn_quads, coord, MAT_NAME, PROB_TYPE, all_BC_Dirichlet, FF_all)
 tock()
 
 ######################################################################
@@ -108,12 +111,13 @@ avrtxy = avarageStress(txy_n_t, txy_n_q, conn_tris, conn_quads, coord)
 # Von Mises
 vm = vmStress(avrsx,avrsy,avrtxy)
 
+def = true
 # Plot Results 
-PL("Deformed Geometry", conn_tris, conn_quads, defCoord(coord, ux, uy, FACTOR))
-PL("Displacement", utot, conn_tris, conn_quads, defCoord(coord, ux, uy, FACTOR)) 
-PL("Sigma X", avrsx, conn_tris, conn_quads, coord)  
-PL("Sigma Y", avrsy, conn_tris, conn_quads, coord)  
-PL("Tau XY", avrtxy, conn_tris, conn_quads, coord)  
-PL("Von Mises", vm, conn_tris, conn_quads, coord)  
+PL("Deformed Geometry", conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), true)
+PL_FIELD("Displacement", utot, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def) 
+PL_FIELD("Sigma X", avrsx, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)  
+PL_FIELD("Sigma Y", avrsy, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)  
+PL_FIELD("Tau XY", avrtxy, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)  
+PL_FIELD("Von Mises", vm, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def) 
 
 println("..END")

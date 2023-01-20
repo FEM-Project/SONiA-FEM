@@ -133,7 +133,7 @@ function elastSolver(conn_tris, conn_quads, coord, MAT_NAME, PROBLEM_TYPE, all_B
         end
     end
 
-return U
+return U, ktot, Kstar, FF
 end
 
 # Here you should put some other solvers!

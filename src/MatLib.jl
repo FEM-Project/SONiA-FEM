@@ -1,7 +1,7 @@
 module MatLib
 
-include("InputManager.jl")
-import .InputManager
+include("PreProcessing.jl")
+import .PreProcessing
 export material
 
 # Material Type:
@@ -13,7 +13,7 @@ end
 
 # Elastic Material Library:
 function material(MAT_NAME::String)
-    E,nu,thick = InputManager.readMat(MAT_NAME)
+    E,nu,thick = PreProcessing.readMat(MAT_NAME)
     mat = elastMat(E,nu,thick)
     return mat
 end

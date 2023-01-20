@@ -6,7 +6,7 @@ include("FemElements.jl")
 include("PostProcessing.jl")
 import .FemElements, .PostProcessing
 
-export plotMesh, plotBC, plotField, PL
+export plotMesh, plotBC, plotField, PL, PL_FIELD
 
 using LinearAlgebra, GLMakie
 
@@ -21,7 +21,7 @@ using LinearAlgebra, GLMakie
             yy = [y ; y[1]]
             # Display
             lines!(xx,yy,linestyle=linetype,color = linecolor)
-            scatter!(x,y, color = :black, markersize = 15px)
+            # scatter!(x,y, color = :black, markersize = 15px)
         end
     end
 
@@ -91,27 +91,51 @@ using LinearAlgebra, GLMakie
             max = maximum(field)
             lev = 10
             avr = abs(max-min)
+            if avr < 1e-12
+                avr = 1
+            end
+            
             tricontourf!(xg, yg, zg, extendlow = :auto, extendhigh = :auto, mode = :normal, levels = min:avr/lev:max)
         end
     end
 
     # Try to use multiple dispatch
-    function PL(TITLE, conn_tris, conn_quads, coord)
+    function PL(TITLE, conn_tris, conn_quads, coord, coord_def, def)
         p = Figure()
         ax = Axis(p[1, 1], aspect=DataAspect(),title=TITLE)
-        plotMesh(conn_tris, coord, :dash, :gray)
-        plotMesh(conn_quads, coord, :dash, :gray)
+        if def
+            plotMesh(conn_tris, coord, :dash, :gray)
+            plotMesh(conn_quads, coord, :dash, :gray)
+            plotMesh(conn_tris, coord_def, :solid, :black)
+            plotMesh(conn_quads, coord_def, :solid, :black)
+        else
+            plotMesh(conn_tris, coord, :solid, :black)
+            plotMesh(conn_quads, coord, :solid, :black)
+        end
         GLMakie.activate!()
         display(GLMakie.Screen(), p)
+        return p
     end
 
-    function PL(TITLE, FIELD, conn_tris, conn_quads, coord)
+    function PL_FIELD(TITLE, FIELD, conn_tris, conn_quads, coord, coord_def, def)
         p = Figure()
         ax = Axis(p[1, 1], aspect=DataAspect(),title = TITLE)
-        plotField(coord, conn_tris, FIELD)
-        plotField(coord, conn_quads, FIELD)
-        plotMesh(conn_tris, coord, :solid, :black)
-        plotMesh(conn_quads, coord, :solid, :black)
+        if def
+            plotMesh(conn_tris, coord, :dash, :gray)
+            plotMesh(conn_quads, coord, :dash, :gray)
+
+            plotField(coord_def, conn_tris, FIELD)
+            plotField(coord_def, conn_quads, FIELD)
+
+            plotMesh(conn_tris, coord_def, :solid, :black)
+            plotMesh(conn_quads, coord_def, :solid, :black)
+        else
+            plotField(coord, conn_tris, FIELD)
+            plotField(coord, conn_quads, FIELD)
+
+            plotMesh(conn_tris, coord, :solid, :black)
+            plotMesh(conn_quads, coord, :solid, :black)
+        end
         GLMakie.activate!()
         display(GLMakie.Screen(), p)
     end

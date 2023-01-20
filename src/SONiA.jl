@@ -3,19 +3,19 @@ module SONiA
 __precompile__(true)
 
 # Include Modules:
-include("InputManager.jl")
+include("PreProcessing.jl")
 include("MyPlots.jl")
 include("BCs.jl")
 include("Solvers.jl")
 include("PostProcessing.jl")
 
 # Read and manage Input File:
-using .InputManager
-export readInput, read_LS_PrePost, separate_conn
+using .PreProcessing
+export readInput, read_LS_PrePost, separate_conn, geoCheckQuads
 
 # Plot functions:
 using .MyPlots
-export plotMesh, plotBC, plotField, PL
+export plotMesh, plotBC, plotField, PL, PL_FIELD
 
 # BCs
 using .BCs

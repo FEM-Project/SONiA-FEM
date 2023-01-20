@@ -4,14 +4,12 @@ Pkg.activate(".")
 using SONiA
 using GLMakie
 using Revise
-using Cairo
-using Infiltrator
+using TickTock
 
 # Read .k file of LS-PrePost
-GEOM_NAME = "triangle.k"
+GEOM_NAME = "QL1.k"
 nel, nnode, conn, coord = read_LS_PrePost(GEOM_NAME)
 conn_tris, conn_quads = separate_conn(conn)
-
 
 # Define Material and Problem Type:
 MAT_NAME = "Custom"
@@ -24,9 +22,10 @@ PL("Geometry", conn_tris, conn_quads, coord, coord, false)
 geoCheckQuads(coord, conn_quads)
 
 
-# Defining Volume-box 1 (first and last index must be the same)
-xv = [-10 210 210 -10 -10]
-yv = [-10 -10 10 10 -10]
+# BC Dirichlet
+# FIRST:
+xv = [99 101 101 99 99]
+yv = [-1 -1 1 1 -1]
 
 # Define first Dirichelet BC
 BC_type = 11
@@ -34,21 +33,31 @@ BC_Dirichlet_1 = BC_Dirichlet(BC_box(xv,yv,coord),BC_type,0.0,0.0)
 plotBC(BC_box(xv,yv,coord)[:,2], BC_box(xv,yv,coord)[:,3], :red)
 lines!(vec(xv),vec(yv),linestyle=:solid,color = :red)
 
+# BC Dirichlet
+# FIRST:
+xv = [99 101 101 99 99]
+yv = [9 9 11 11 9]
+
+# Define first Dirichelet BC
+BC_type = 10
+BC_Dirichlet_2 = BC_Dirichlet(BC_box(xv,yv,coord),BC_type,0.0,0.0)
+plotBC(BC_box(xv,yv,coord)[:,2], BC_box(xv,yv,coord)[:,3], :red)
+lines!(vec(xv),vec(yv),linestyle=:solid,color = :red)
+
 # Assemble all BC Dirichlet
-all_BC_Dirichlet = vcat(BC_Dirichlet_1)
+all_BC_Dirichlet = vcat(BC_Dirichlet_1, BC_Dirichlet_2)
 
 
 # BC Neumann
 # Define type of BC and values
 FORCE_TYPE = "Distributed"
-NORMAL_FORCE = 1/100
+NORMAL_FORCE = 10
 TANGENTIAL_FORCE = 0
 
-# Defining Volume-box 3 (first and last index must be the same)
-xv = [90 190 210 100 90]
-yv = [140 -10 -10 160 140]
+# First Box:
+xv = [109 111 111 109 109]
+yv = [-1 -1 11 11 -1]
 
-# Define first Neumann BC
 NeumannNodes_1 = BC_box(xv,yv,coord)
 plotBC(NeumannNodes_1[:,2],NeumannNodes_1[:,3],:blue)
 lines!(vec(xv),vec(yv),linestyle=:solid,color = :blue)
@@ -60,17 +69,18 @@ FF_1_quads = BC_Neumann(coord, conn_quads, NeumannNodes_1, NORMAL_FORCE, TANGENT
 # Assemble all BC Neumann (can be: FF_all = FF_1 + FF_2 + ...)
 FF_all = FF_1_tris + FF_1_quads
 
+
 ## SOLVE SYSTEM
 tick()
 U, Ktot, Kstar, FF = elastSolver(conn_tris, conn_quads, coord, MAT_NAME, PROB_TYPE, all_BC_Dirichlet, FF_all)
 tock()
 
-
 ######################################################################
 # POST-PROCESSING
 ######################################################################
 
-FACTOR = 10
+FACTOR = 10.0/maximum([abs(maximum(U)) abs(minimum(U))])
+println("FACTOR: ",FACTOR)
 
 # Recover Displacements
 ux,uy = splitU(U,coord)
@@ -107,6 +117,7 @@ PL_FIELD("Displacement", utot, conn_tris, conn_quads, coord, defCoord(coord, ux,
 PL_FIELD("Sigma X", avrsx, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)  
 PL_FIELD("Sigma Y", avrsy, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)  
 PL_FIELD("Tau XY", avrtxy, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)  
-PL_FIELD("Von Mises", vm, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def) 
+PL_FIELD("Von Mises", vm, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)  
 
 println("..END")
+

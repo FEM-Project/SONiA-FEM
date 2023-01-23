@@ -2,7 +2,8 @@ module PostProcessing
 
 __precompile__(true)
 
-export splitU, defCoord, uTot, stressCalcGP_tris, stressCalcGP_quads, avarageStress, vmStress, nodalStresses
+export splitU, defCoord, uTot, stressCalcGP_tris, stressCalcGP_quads, 
+avarageStress, vmStress, nodalStresses, factorCalc
 
 include("legzo.jl")
 include("FemElements.jl")
@@ -307,6 +308,11 @@ function vmStress(sx,sy,txy)
     # Pass to this function avarage values of stresses components
     vm = sqrt.(sx.^2-sx.*sy+sy.^2+3*txy.^2)
     return vm
+end
+
+function factorCalc(U)
+    f = 10.0/maximum([abs(maximum(U)) abs(minimum(U))])
+    return f
 end
 
 end

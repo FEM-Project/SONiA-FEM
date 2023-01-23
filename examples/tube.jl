@@ -80,7 +80,7 @@ tock()
 # POST-PROCESSING
 ######################################################################
 
-FACTOR = 10.0/maximum([abs(maximum(U)) abs(minimum(U))])
+FACTOR = factorCalc(U)
 println("FACTOR: ",FACTOR)
 
 # Recover Displacements

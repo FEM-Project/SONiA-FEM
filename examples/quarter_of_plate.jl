@@ -90,7 +90,8 @@ U, Ktot, Kstar, FF = elastSolver(conn_tris, conn_quads, coord, MAT_NAME, PROB_TY
 # POST-PROCESSING
 ######################################################################
 
-FACTOR = 10
+FACTOR = factorCalc(U)
+println("FACTOR: ",FACTOR)
 
 # Recover Displacements
 ux,uy = splitU(U,coord)

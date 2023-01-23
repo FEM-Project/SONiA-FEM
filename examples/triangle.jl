@@ -71,7 +71,8 @@ tock()
 # POST-PROCESSING
 ######################################################################
 
-FACTOR = 10
+FACTOR = factorCalc(U)
+println("FACTOR: ",FACTOR)
 
 # Recover Displacements
 ux,uy = splitU(U,coord)

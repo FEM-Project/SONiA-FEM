@@ -11,7 +11,7 @@ include("PostProcessing.jl")
 
 # Read and manage Input File:
 using .PreProcessing
-export readInput, read_LS_PrePost, separate_conn, geoCheckQuads
+export readInput, read_LS_PrePost, separate_conn, geoCheckTris, geoCheckQuads
 
 # Plot functions:
 using .MyPlots

@@ -5,7 +5,7 @@ using SONiA
 using GLMakie
 using Revise
 using Cairo
-using Infiltrator
+using TickTock
 
 # Read .k file of LS-PrePost
 GEOM_NAME = "triangle.k"
@@ -22,6 +22,7 @@ PL("Geometry", conn_tris, conn_quads, coord, coord, false)
 
 # Geometry Check
 geoCheckQuads(coord, conn_quads)
+geoCheckTris(coord, conn_tris)
 
 
 # Defining Volume-box 1 (first and last index must be the same)

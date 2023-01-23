@@ -2,10 +2,10 @@ module PreProcessing
 
 __precompile__(true)
 
-export readInput, readMat, read_LS_PrePost, separate_conn, geoCheckQuads
+export readInput, readMat, read_LS_PrePost, separate_conn, geoCheckTris, geoCheckQuads
 
 using DelimitedFiles: readdlm, findall
-using CairoMakie
+using CairoMakie, LinearAlgebra
 using GLMakie.GeometryBasics
 
 function read_LS_PrePost(NAME)
@@ -239,16 +239,16 @@ function distortionQL1(conn, coord)
     return delta
 end
 
-function geoCheckQuads(coord, conn_quads)
+function geoCheckQuads(coord, conn)
 
-    nel = size(conn_quads,1)
+    nel = size(conn,1)
     for i in 1:nel
-        delta = distortionQL1(conn_quads[i,:]', coord)
+        delta = distortionQL1(conn[i,:]', coord)
 
-        one = conn_quads[i,4]
-        two = conn_quads[i,5]
-        three = conn_quads[i,6]
-        four = conn_quads[i,7]
+        one = conn[i,4]
+        two = conn[i,5]
+        three = conn[i,6]
+        four = conn[i,7]
 
         x1 = coord[one, 2]
         x2 = coord[two, 2]
@@ -264,8 +264,7 @@ function geoCheckQuads(coord, conn_quads)
         xx = vec([x1 x2 x3 x4 x1]) 
         yy = vec([y1 y2 y3 y4 y1])
 
-        println("element ",i," has delta = ",delta)
-        if delta >= 0.1
+        if delta >= 0.2
             println("WARNING: element ",i, " appear to be distorted!")
             poly!(p, color = :red)
             lines!(xx,yy,linestyle=:solid, color = :black)
@@ -277,5 +276,67 @@ function geoCheckQuads(coord, conn_quads)
 
 end
 
+function geoCheckTris(coord, conn)
+
+    nel = size(conn,1)
+    for i in 1:nel
+        x1 = coord[conn[i,4],2]
+        x2 = coord[conn[i,5],2]
+        x3 = coord[conn[i,6],2]
+
+        y1 = coord[conn[i,4],3]
+        y2 = coord[conn[i,5],3]
+        y3 = coord[conn[i,6],3]
+
+        b1 = y3-y2
+        b2 = y1-y3
+        b3 = y1-y2
+
+        c1 = x2-x3
+        c2 = x1-x3
+        c3 = x1-x2
+
+        # Calculate Jacobian
+        J = [-c3 -b3
+            -c2 -b2]
+
+        # Calculate Area
+        A = det(J)/2
+
+        # Matrix B
+        Bs = [-1 1 0
+              -1 0 1]
+
+        # Matrix B in cartesian system
+        Bi = J \ Bs 
+
+        # Stiffness Matrix
+        K = A*Transpose(Bi)*Bi
+
+        # Calculate eigevalues
+        eigv = eigvals(K)
+
+        # Remove 0 eigevalues
+        eps = 1e-10
+        eigv2 = eigv[findall(x->x>eps, eigv)]
+
+        # Conditioning factor normalized
+        cond = (maximum(eigv2)/minimum(eigv2))/3
+
+        p = Polygon(Point2f[(x1, y1), (x2, y2), (x3, y3)])
+        xx = vec([x1 x2 x3 x1]) 
+        yy = vec([y1 y2 y3 y1])
+
+        if cond >= 2
+            println("WARNING: element ",i, " appear to be distorted!")
+            poly!(p, color = :red)
+            lines!(xx,yy,linestyle=:solid, color = :black)
+        else
+            poly!(p, color = :green)
+            lines!(xx,yy,linestyle=:solid, color = :black)
+        end
+
+    end
+end
 
 end

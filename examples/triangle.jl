@@ -4,7 +4,6 @@ Pkg.activate(".")
 using SONiA
 using GLMakie
 using Revise
-using Cairo
 using TickTock
 
 # Read .k file of LS-PrePost

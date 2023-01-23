@@ -4,6 +4,7 @@ Pkg.activate(".")
 using SONiA
 using GLMakie
 using Revise
+using TickTock
 
 
 ######################################################################

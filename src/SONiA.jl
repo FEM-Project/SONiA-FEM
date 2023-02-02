@@ -15,11 +15,11 @@ export readInput, read_LS_PrePost, separate_conn, geoCheckTris, geoCheckQuads
 
 # Plot functions:
 using .MyPlots
-export plotMesh, plotBC, plotField, PL, PL_FIELD
+export plotMesh, plotBC, plotField, PL, PL_FIELD, plotDistributed
 
 # BCs
 using .BCs
-export BC_box, BC_Dirichlet, BC_Neumann, arch, line
+export BC_box, BC_Dirichlet, BC_Neumann, BC_Neumann_edges, arch, line
 
 # Problem Type:
 using .Solvers

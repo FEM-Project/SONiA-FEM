@@ -1,4 +1,4 @@
-# SONiA
+# SONiA-FEM
 
 SONiA is a SOlver for Numerical Aplications written in Julia Programming Language to enhance knowledge on this topic
 
@@ -14,10 +14,14 @@ SONiA is a SOlver for Numerical Aplications written in Julia Programming Languag
 
 #### 0. Write a geometry file as follow:
 
+**CASE 1** *- from scratches*
+
 * first of all the number of elements
+
 * you need a connectivity matrix where you define the element number (1,2,..,n), the number of nodes (3 or 4), the associated material (1,2,..,n) and the nodes' order.
+  
   * Right now the solver can handle just 1 material, but the connectivity matrix is generalized to implement multiple materials
-  * Mesh with triangles is not tested, so they will probably not work
+
 * now you need node numbering and coordinates for nodes
   **EXAMPLE:**
   
@@ -32,9 +36,12 @@ SONiA is a SOlver for Numerical Aplications written in Julia Programming Languag
   5 0.0 50.0   
   6 0.0 200.0  
   ```
-* **you can help yourselfe using LS-PREPOST**
 
-#### 1. Create a new julia file and activate SONiA package
+**CASE 2** *- using LS-PREPOST*
+
+* Simply use LS-PREPOST to create a *.k* file
+
+#### 1. Create a new Julia file and activate SONiA package
 
 ```julia
 import Pkg
@@ -45,9 +52,19 @@ using SONiA
 
 #### 2. Select and read your geometry file
 
+**CASE 1** *- your geometry*
+
 ```julia
 GEOM_NAME = "foo"
 conn_tris, conn_quads, coord = readInput(GEOM_NAME) 
+```
+
+**CASE 2** *- LS-PREPOST geometry*
+
+```julia
+GEOM_NAME = "foo.k"
+nel, nnode, conn, coord = read_LS_PrePost(GEOM_NAME)
+conn_tris, conn_quads = separate_conn(conn)
 ```
 
 you now have connectivity for triangles (conn_tris), for quadrangles (conn_quads) and the coordinates matrix (coord)
@@ -55,7 +72,7 @@ you now have connectivity for triangles (conn_tris), for quadrangles (conn_quads
 why not? Plot your geometry using PL function
 
 ```julia
-PL("Geometry", conn_tris, conn_quads, coord)
+PL("Geometry", conn_tris, conn_quads, coord, 0, false)
 ```
 
 #### 3. Define Material and problem type
@@ -70,7 +87,7 @@ IMPORTANT: only linear-elastic material work!
 
 #### 4. Dirichlet BCs
 
-* create a box to get the nodes you want to constaint
+* create a box to get the nodes you want to constraint
   
   ```julia
   xv = [ -0.1 0.1 0.1 -0.1 -0.1]
@@ -78,6 +95,14 @@ IMPORTANT: only linear-elastic material work!
   ```
 
 * define the type of constraint
+  
+  * 00 = free
+  
+  * 01 = free x, constraint y
+  
+  * 10 = constraint x, free y
+  
+  * 11 = constraint x and y
   
   ```julia
   BC_type = 10
@@ -117,37 +142,47 @@ IMPORTANT: only linear-elastic material work!
   TANGENTIAL_FORCE = 1
   ```
 
-* create a box to get the nodes you want to constaint
+* create a box to get the nodes you want to constraint
   
   ```julia
-  xv = [ 200.0-0.1 200.0+0.1 200.0+0.1 200.0-0.1 200.0-0.1]
-  yv = [ -0.1 -0.1 210. 210. -0.1]
+  xv = [ -0.1 0.1 0.1 -0.1 -0.1]
+  yv = [ 0. 0. 210. 210. 0.]
   ```
 
-* Apply BC (calculate force vector)
+* Get Neumann nodes
   
   ```julia
-  FF_1 = BC_Neumann(coord, conn_quads, BC_box(xv,yv,coord), NORMAL_FORCE, TANGENTIAL_FORCE)
-  ```
-  
-  If you like you can plot a different color (:blue) for the selected nodes using
-  
-  ```julia
-  plotBC(BC_box(xv,yv,coord)[:,2], BC_box(xv,yv,coord)[:,3], :blue)
+  NeumannNodes_1 = BC_box(xv,yv,coord)
   ```
 
-* Assemble all BC Neumann
+* Get Neumann edges for quadrangles (q) and triangles (t)
   
   ```julia
-  FF_all = FF_1 + FF_2 + ...
+  neumann_edges_q = BC_Neumann_edges(conn_quads, NeumannNodes_1)
+  neumann_edges_t = BC_Neumann_edges(conn_tris, NeumannNodes_1)
   ```
 
-#### 6. SOLVE
-
-* Call the solver you need to get the resutl
+* Plot arrows on edges for distributed forces
   
   ```julia
-  U = elastSolver(conn_tris, conn_quads, coord, MAT_NAME, PROB_TYPE, all_BC_Dirichlet, FF_all)
+  neumann_edges = [neumann_edges_q; neumann_edges_t]
+  plotDistributed(neumann_edges, coord, NORMAL_FORCE*100)
+  ```
+
+* Calculate forces vector for both triangles and quadrangle and assemble total **Force Vector**
+  
+  ```julia
+  FF_1_tris = BC_Neumann(coord, conn_tris, NeumannNodes_1, NORMAL_FORCE, TANGENTIAL_FORCE)
+  FF_1_quads = BC_Neumann(coord, conn_quads, NeumannNodes_1, NORMAL_FORCE, TANGENTIAL_FORCE)
+  FF_all = FF_1_tris + FF_1_quads + ...
+  ```
+
+#### 6. SOLVE LINEAR SYSTEM
+
+* Call the solver you need to get the results
+  
+  ```julia
+  U, Ktot, Kstar, FF = elastSolver(conn_tris, conn_quads, coord, MAT_NAME, PROB_TYPE, all_BC_Dirichlet, FF_all)
   ```
 
 ---
@@ -156,10 +191,10 @@ IMPORTANT: only linear-elastic material work!
 
 #### 7. Post Processing
 
-* Define multiplier factor
+* Automatically define multiplier factor
   
   ```julia
-  FACTOR = 10
+  FACTOR = factorCalc(U)
   ```
 
 * Recover fields to plot
@@ -169,54 +204,65 @@ IMPORTANT: only linear-elastic material work!
     ```julia
     ux,uy = splitU(U,coord)
     ```
+  
   * calculate Utot
     
     ```julia
     utot = uTot(ux, uy)
     ```
-  * calculate stressess at GPs positions for triangles and quadrangles
+  
+  * calculate stresses at GPs positions for triangles and quadrangles
     
     ```julia
     sx_t, sy_t, txy_t = stressCalcGP_tris(U, conn_tris, coord, MAT_NAME, PROB_TYPE)
     sx_q, sy_q, txy_q = stressCalcGP_quads(U, conn_quads, coord, MAT_NAME, PROB_TYPE)
     ```
-
-  * calculate stressess at nodes positions for triangles and quadrangles
+  
+  * calculate stresses at nodes positions for triangles and quadrangles
     
     ```julia
     sx_n_t = nodalStresses(sx_t, conn_tris, coord)
     sy_n_t = nodalStresses(sy_t, conn_tris, coord)
     txy_n_t = nodalStresses(txy_t, conn_tris, coord)
     ```
-
+    
     ```julia
     sx_n_q = nodalStresses(sx_q, conn_quads, coord)
     sy_n_q = nodalStresses(sy_q, conn_quads, coord)
     txy_n_q = nodalStresses(txy_q, conn_quads, coord)
     ```
-
-  * calculate avarage stressess
+  
+  * calculate average stresses
     
     ```julia
     avrsx = avarageStress(sx_n_t, sx_n_q, conn_tris, conn_quads, coord)
     avrsy = avarageStress(sy_n_t, sy_n_q, conn_tris, conn_quads, coord)
     avrtxy = avarageStress(txy_n_t, txy_n_q, conn_tris, conn_quads, coord)
     ```
-
-  * calculate Von Mises stressess
+  
+  * calculate Von Mises stresses
     
     ```julia
     vm = vmStress(avrsx,avrsy,avrtxy)
     ```
 
-* Plot the results you want using PL
+* Plot the result of the deformed geometry using PL
   
   ```julia
-  PL("FIELD", FIELD, conn_tris, conn_quads, coord) 
+  PL("Deformed Geometry", conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), true)
+  ```
+
+* Plot the fields you want using PL_FIELD
+  
+  ```julia
+  PL_FIELD("Displacement", utot, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def) 
+  PL_FIELD("Sigma X", avrsx, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)  
+  PL_FIELD("Sigma Y", avrsy, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)  
+  PL_FIELD("Tau XY", avrtxy, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)  
+  PL_FIELD("Von Mises", vm, conn_tris, conn_quads, coord, defCoord(coord, ux, uy, FACTOR), def)
   ```
   
-  sustituting FIELD with the quantity you want for example: utot, avrsx, etc.
-  If you like to plot the deformed shape substitute "coord" with the deformed one using the function defCoord
+  Deformed coords can be calculated using defCoord
   
   ```julia
   defCoord(coord, ux, uy, FACTOR)

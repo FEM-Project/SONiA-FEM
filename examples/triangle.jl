@@ -17,7 +17,7 @@ MAT_NAME = "Custom"
 PROB_TYPE = "Plane_Stress"
 
 # Show Geometry:
-PL("Geometry", conn_tris, conn_quads, coord, coord, false)
+PL("Geometry", conn_tris, conn_quads, coord, 0, false)
 
 # Geometry Check
 geoCheckQuads(coord, conn_quads)
@@ -50,8 +50,18 @@ yv = [140 -10 -10 160 140]
 
 # Define first Neumann BC
 NeumannNodes_1 = BC_box(xv,yv,coord)
-plotBC(NeumannNodes_1[:,2],NeumannNodes_1[:,3],:blue)
-lines!(vec(xv),vec(yv),linestyle=:solid,color = :blue)
+
+#Plot Arrows
+neumann_edges_q = BC_Neumann_edges(conn_quads, NeumannNodes_1)
+neumann_edges_t = BC_Neumann_edges(conn_tris, NeumannNodes_1)
+neumann_edges = [neumann_edges_q; neumann_edges_t]
+plotDistributed(neumann_edges, coord, NORMAL_FORCE*100)
+
+# Plot Nnode Distributed
+# plotBC(NeumannNodes_1[:,2],NeumannNodes_1[:,3],:blue)
+
+# PLot Box
+# lines!(vec(xv),vec(yv),linestyle=:solid,color = :blue)
 
 # Calculate Force vector
 FF_1_tris = BC_Neumann(coord, conn_tris, NeumannNodes_1, NORMAL_FORCE, TANGENTIAL_FORCE)

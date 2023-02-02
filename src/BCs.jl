@@ -2,7 +2,7 @@ module BCs
 
 __precompile__(true)
 
-export BC_box, BC_Dirichlet, BC_Neumann, arch, line
+export BC_box, BC_Dirichlet, BC_Neumann, BC_Neumann_edges, arch, line
 
 include("legzo.jl")
 include("FemElements.jl")
@@ -74,12 +74,9 @@ function BC_Dirichlet(nodes, BC_type, ux, uy)
 end
 
 # Neumann
-function BC_Neumann(coord, conn, NeumannNodes, applied_p, applied_t)
+function BC_Neumann_edges(conn, NeumannNodes)
 
     nel = size(conn,1)
-    nnode = size(coord,1)
-    n_dof = 2
-    ngdof = nnode * n_dof
 
     # Loop over elements
     neumann_edges = Array{Float64}(undef, 0, 2)
@@ -99,7 +96,17 @@ function BC_Neumann(coord, conn, NeumannNodes, applied_p, applied_t)
         end
     end
     println("Neumann edges are: ", neumann_edges)
+    return neumann_edges
+end
 
+function BC_Neumann(coord, conn, NeumannNodes, applied_p, applied_t)
+
+    nel = size(conn,1)
+    nnode = size(coord,1)
+    n_dof = 2
+    ngdof = nnode * n_dof
+
+    neumann_edges = BC_Neumann_edges(conn, NeumannNodes)
 
     Fneumann = zeros(ngdof, 1)
 

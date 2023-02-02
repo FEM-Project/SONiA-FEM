@@ -1,4 +1,5 @@
-using SONiA
+include("..//src//FemElements.jl")
+using .FemElements
 using Test
 
 # using SONiA.FemElements

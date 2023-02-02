@@ -12,8 +12,15 @@ using TickTock
 ######################################################################
 
 # There are 3 files for this geometry (*_2el, *_36el, *_400el)
-GEOM_NAME = "quarterPlate_36el"
-conn_tris, conn_quads, coord = readInput(GEOM_NAME)
+# GEOM_NAME = "quarterPlate_36el"
+# conn_tris, conn_quads, coord = readInput(GEOM_NAME)
+
+# OR
+
+# Read .k file of LS-PrePost
+GEOM_NAME = "quarterPlate.k"
+nel, nnode, conn, coord = read_LS_PrePost(GEOM_NAME)
+conn_tris, conn_quads = separate_conn(conn)
 
 
 ######################################################################
@@ -70,7 +77,12 @@ yv = [ -0.1 -0.1 210. 210. -0.1]
 
 # Define first Neumann BC
 NeumannNodes_1 = BC_box(xv,yv,coord)
-plotBC(NeumannNodes_1[:,2],NeumannNodes_1[:,3],:blue)
+
+#Plot Arrows
+neumann_edges_q = BC_Neumann_edges(conn_quads, NeumannNodes_1)
+neumann_edges_t = BC_Neumann_edges(conn_tris, NeumannNodes_1)
+neumann_edges = [neumann_edges_q; neumann_edges_t]
+plotDistributed(neumann_edges, coord, NORMAL_FORCE*200)
 
 # Calculate Force vector
 FF_1 = BC_Neumann(coord, conn_quads, NeumannNodes_1, NORMAL_FORCE, TANGENTIAL_FORCE)

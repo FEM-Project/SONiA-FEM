@@ -26,11 +26,11 @@ function elastSolver(conn_tris, conn_quads, coord, MAT_NAME, PROBLEM_TYPE, all_B
 
     mat = material(MAT_NAME)
     if PROBLEM_TYPE == "Plane_Stress"
-        D = Plane_Stress(mat.E, mat.nu, mat.thick)
+        D = Plane_Stress(mat.E, mat.nu)
     elseif PROBLEM_TYPE == "Plane_Strain"
         D = Plane_Strain(mat.E, mat.nu)
     elseif PROBLEM_TYPE == "Axisymmetric"
-
+        D = Axisymmetric(mat.E, mat.nu)
     end
 
 
@@ -62,7 +62,11 @@ function elastSolver(conn_tris, conn_quads, coord, MAT_NAME, PROBLEM_TYPE, all_B
         pts = coord[conn_quads[i, 4:end], 2:end]
         nodes = conn_quads[i, 4:end]
 
-        kel = stiff_QL1(pts, D, mat.thick)
+        if PROBLEM_TYPE == "Axisymmetric"
+
+        else
+            kel = stiff_QL1(pts, D, mat.thick)
+        end
 
         # ASSEMBLE STIFFNESS MATRIX
         # Defining assemble key

@@ -60,8 +60,12 @@ xv = append!(x1,x2,x1[1])
 yv = append!(y1,y2,y1[1])
 
 NeumannNodes_1 = BC_box(xv,yv,coord)
-plotBC(NeumannNodes_1[:,2],NeumannNodes_1[:,3],:blue)
-lines!(vec(xv),vec(yv),linestyle=:solid,color = :blue)
+
+#Plot Arrows
+neumann_edges_q = BC_Neumann_edges(conn_quads, NeumannNodes_1)
+neumann_edges_t = BC_Neumann_edges(conn_tris, NeumannNodes_1)
+neumann_edges = [neumann_edges_q; neumann_edges_t]
+plotDistributed(neumann_edges, coord, NORMAL_FORCE*100)
 
 # Calculate Force vector
 FF_1_tris = BC_Neumann(coord, conn_tris, NeumannNodes_1, NORMAL_FORCE, TANGENTIAL_FORCE)

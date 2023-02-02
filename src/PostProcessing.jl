@@ -62,11 +62,11 @@ function stressCalcGP_quads(U, conn, coord, MAT_NAME, PROBLEM_TYPE)
 
     mat = material(MAT_NAME)
     if PROBLEM_TYPE == "Plane_Stress"
-        D = Plane_Stress(mat.E, mat.nu, mat.thick)
+        D = Plane_Stress(mat.E, mat.nu)
     elseif PROBLEM_TYPE == "Plane_Strain"
         D = Plane_Strain(mat.E, mat.nu)
     elseif PROBLEM_TYPE == "Axisymmetric"
-
+        D = Axisymmetric(mat.E, mat.nu)
     end
 
     sigmaXel = Array{Float64}(undef, 0, ngauss+1)
@@ -157,11 +157,11 @@ function stressCalcGP_tris(U, conn, coord, MAT_NAME, PROBLEM_TYPE)
 
     mat = material(MAT_NAME)
     if PROBLEM_TYPE == "Plane_Stress"
-        D = Plane_Stress(mat.E, mat.nu, mat.thick)
+        D = Plane_Stress(mat.E, mat.nu)
     elseif PROBLEM_TYPE == "Plane_Strain"
         D = Plane_Strain(mat.E, mat.nu)
     elseif PROBLEM_TYPE == "Axisymmetric"
-
+        D = Axisymmetric(mat.E, mat.nu)
     end
 
     sigmaXel = Array{Float64}(undef, 0, ngauss+1)
